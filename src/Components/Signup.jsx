@@ -10,8 +10,11 @@ const Signup = () => {
   const dispatch = useDispatch();
 
   const details = useSelector((state) => state.slice.userData);
+  const userDetail = useSelector((state) => state.slice.userDetail);
+  const editUserDetail = useSelector((state) => state.slice.editUserDetail);
 
   const [messageApi, contextHolder] = message.useMessage();
+  const [form] = Form.useForm();
 
   const success = () => {
     messageApi.open({
@@ -21,9 +24,24 @@ const Signup = () => {
     });
   };
 
+  useEffect(() => {
+    dispatch(getuserData());
+  }, []);
+
+  useEffect(() => {
+    if (editUserDetail) {
+      form.setFieldsValue({
+        name: userDetail?.title,
+        email: userDetail?.description,
+        password: userDetail?.password,
+      });
+    }
+  }, []);
+
   const handleSubmit = async (data) => {
     console.log("jkdhjgfuiyeguhiwsjokl,", data);
     dispatch(postUserDetail(data));
+    navigate("/");
   };
 
   console.log("njdhgfyguhsijnjkcdhbvdbjnskl", details);
@@ -45,10 +63,6 @@ const Signup = () => {
     return Promise.resolve();
   };
 
-  useEffect(() => {
-    dispatch(getuserData());
-  }, []);
-
   return (
     <div className="flex flex-col justify-center items-center gap-y-15 w-2/5 py-20 bg-white rounded-2xl shadow-formCard ">
       <h1 className="text-5xl">Sign up</h1>
@@ -64,8 +78,18 @@ const Signup = () => {
           rules={[
             {
               required: true,
-              message: "Please input valid name",
+              //   message: "Please input valid name",
             },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (value.length > 5) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error("Name must be longer than 5 characters")
+                );
+              },
+            }),
           ]}
         >
           <Input />

@@ -2,13 +2,12 @@ import { Button, Form, Input, message } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { getuserData } from "./slice";
+import { getuserData, userDetails } from "./slice";
 
 const Login = () => {
   const details = useSelector((state) => state.slice.userData);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
 
   const [isAutenticated, setIsAutenticated] = useState(false);
 
@@ -35,16 +34,23 @@ const Login = () => {
 
       if (filterData?.length > 0) {
         setIsAutenticated(false);
+        dispatch(userDetails(...filterData));
+        console.log('filtereddd',filterData)
+        const userJSON = JSON.stringify(...filterData);
+        localStorage.setItem("user", userJSON);
         success();
         setTimeout(() => {
-            navigate("/dashboard");
-        }, 2000);
+          navigate("/dashboard");
+        }, 1500);
       } else {
         setIsAutenticated(true);
       }
     },
     [details]
   );
+
+
+  console.log('kdjgfygyuhidjklslkjfhagfhdjkl',)
 
   return (
     <div className="flex flex-col justify-center items-center gap-y-15 w-2/5 py-20 bg-white rounded-2xl shadow-formCard ">

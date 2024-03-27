@@ -1,29 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// const BASE_URL = "https://advancetaskmanagement-default-rtdb.firebaseio.com/";
-
-// const api = axios.create({
-//   baseURL: BASE_URL,
-//   withCredentials: true,
-//   headers: {
-//     "Content-type": "application/json",
-//   },
-// });
-
 const initialState = {
   userData: [],
   taskData: [],
+  userDetail: {},
+  editUserDetail: false,
 };
-
-// get supertoken id
-// export const createSuperTokenObject = createAsyncThunk(
-//   "createSuperTokenObject",
-//   async (data) => {
-//     const response = await api.post(`supertoken/`, data);
-//     return response.data;
-//   }
-// );
 
 export const postUserDetail = createAsyncThunk("userDetail", async (data) => {
   const response = await axios.post(
@@ -42,30 +25,28 @@ export const getuserData = createAsyncThunk("getUserDetail", async () => {
 
 export const handleTasksData = createAsyncThunk("taskData", async (data) => {
   await axios.post(
-    `https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks.json`,
-    data
+    `https://advancetaskmanagement-default-rtdb.firebaseio.com/${data?.domain}tasks.json`,
+    data?.data
   );
 
-  const getAllUrl =
-    "https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks.json";
+  const getAllUrl = `https://advancetaskmanagement-default-rtdb.firebaseio.com/${data?.domain}tasks.json`;
   const response = await axios.get(getAllUrl);
   return response.data;
 });
 
-export const getTaskData = createAsyncThunk("getTaskData", async () => {
+export const getTaskData = createAsyncThunk("getTaskData", async (domain) => {
   const response = await axios.get(
-    `https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks.json`
+    `https://advancetaskmanagement-default-rtdb.firebaseio.com/${domain}tasks.json`
   );
   return response.data;
 });
 
 export const deleteTaskById = createAsyncThunk(
   "tasks/deleteTaskById",
-  async (taskId) => {
-    const url = `https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks/${taskId}.json`;
+  async (info) => {
+    const url = `https://advancetaskmanagement-default-rtdb.firebaseio.com/${info?.domain}tasks/${info?.data}.json`;
     await axios.delete(url);
-    const getAllUrl =
-      "https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks.json";
+    const getAllUrl = `https://advancetaskmanagement-default-rtdb.firebaseio.com/${info?.domain}tasks.json`;
     const response = await axios.get(getAllUrl);
     return response.data;
   }
@@ -73,11 +54,10 @@ export const deleteTaskById = createAsyncThunk(
 
 export const updateTaskById = createAsyncThunk(
   "tasks/updateTaskById",
-  async ({ taskId, updatedData }) => {
-    const url = `https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks/${taskId}.json`;
-    await axios.patch(url, updatedData);
-    const getAllUrl =
-      "https://advancetaskmanagement-default-rtdb.firebaseio.com/tasks.json";
+  async ({ domain, data }) => {
+    const url = `https://advancetaskmanagement-default-rtdb.firebaseio.com/${domain}tasks/${data?.taskId}.json`;
+    await axios.patch(url, data?.updatedData);
+    const getAllUrl = `https://advancetaskmanagement-default-rtdb.firebaseio.com/${domain}tasks.json`;
     const response = await axios.get(getAllUrl);
     return response.data;
   }
@@ -86,7 +66,14 @@ export const updateTaskById = createAsyncThunk(
 const slice = createSlice({
   name: "slice",
   initialState,
-  reducers: {},
+  reducers: {
+    userDetails: (state, action) => {
+      state.userDetail = action.payload;
+    },
+    isEditUserDetail: (state, action) => {
+      state.editUserDetail = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(getuserData.fulfilled, (state, action) => {
       console.log("kdnjhggchjnkmlecfnvcgdhj", action.payload);
@@ -116,18 +103,15 @@ const slice = createSlice({
       state.taskData = jsonData?.reverse();
     });
 
-
     builder.addCase(handleTasksData.fulfilled, (state, action) => {
-        const firebaseData = action.payload;
-        const jsonData = Object.keys(firebaseData).map((key) => ({
-          id: key,
-          ...firebaseData[key],
-        }));
-        console.log("kdnjhggchjnkmlecfnvcgdhj   out ", jsonData);
-        state.taskData = jsonData?.reverse();
-      });
-
-
+      const firebaseData = action.payload;
+      const jsonData = Object.keys(firebaseData).map((key) => ({
+        id: key,
+        ...firebaseData[key],
+      }));
+      console.log("kdnjhggchjnkmlecfnvcgdhj   out ", jsonData);
+      state.taskData = jsonData?.reverse();
+    });
 
     builder.addCase(updateTaskById.fulfilled, (state, action) => {
       const firebaseData = action.payload;
@@ -151,6 +135,6 @@ const slice = createSlice({
   },
 });
 
-export const {} = slice.actions;
+export const { userDetails, isEditUserDetail } = slice.actions;
 
 export default slice.reducer;

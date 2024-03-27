@@ -17,63 +17,14 @@ import {
   deleteTaskById,
   getTaskData,
   handleTasksData,
+  isEditUserDetail,
   updateTaskById,
 } from "./slice";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const tasks = [
-    {
-      title: "Drink coffee",
-      description: "i have to drink cofffe at evening time ",
-      status: "pending",
-    },
-    {
-      title: "To do assignment",
-      description: "i have to drink cofffe at evening time ",
-      status: "completed",
-    },
-    {
-      title: "Go to trip",
-      description: "i have to drink cofffe at evening time ",
-      status: "pending",
-    },
-    {
-      title: "Going to College",
-      description: "i have to drink cofffe at evening time ",
-      status: "pending",
-    },
-    {
-      title: "Going to bath ",
-      description: "i have to drink cofffe at evening time ",
-      status: "completed",
-    },
-    {
-      title: "Going to make food ",
-      description: "i have to drink cofffe at evening time ",
-      status: "pending",
-    },
-    {
-      title: "To do Garage work",
-      description: "i have to drink cofffe at evening time ",
-      status: "completed",
-    },
-    {
-      title: "Drink coffee HR ",
-      description: "i have to drink cofffe at evening time ",
-      status: "pending",
-    },
-    {
-      title: "Drink coffee with Dean",
-      description: "i have to drink cofffe at evening time ",
-      status: "pending",
-    },
-    {
-      title: "Drink coffee CEO",
-      description: "i have to drink cofffe at evening time ",
-      status: "completed",
-    },
-  ];
+  const storedUserJSON = localStorage.getItem("user");
+  const storedUser = JSON.parse(storedUserJSON);
   const taskDatas = useSelector((state) => state.slice.taskData);
   const containerRef = useRef();
   const dragItem = useRef(null);
@@ -91,7 +42,8 @@ const Dashboard = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    dispatch(getTaskData());
+    let domain = storedUser?.name?.replace(/\s/g, "").toLowerCase();
+    dispatch(getTaskData(domain));
   }, []);
 
   useEffect(() => {
@@ -130,10 +82,13 @@ const Dashboard = () => {
     console.log("ndbhvfidhbcjknlmx", e);
     dispatch(
       updateTaskById({
-        taskId: updateTask?.id,
-        updatedData: {
-          ...updateTask,
-          status: e.target.checked == false ? "pending" : "completed",
+        domain: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
+        data: {
+          taskId: updateTask?.id,
+          updatedData: {
+            ...updateTask,
+            status: e.target.checked == false ? "pending" : "completed",
+          },
         },
       })
     );
@@ -141,15 +96,30 @@ const Dashboard = () => {
 
   const handleAddTask = (values) => {
     if (updateTask) {
+
+
+        console.log('khgyftdrsrdf   if')
+
+
       dispatch(
         updateTaskById({
-          taskId: updateTask?.id,
-          updatedData: { ...values, status: "pending" },
+          domain: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
+          data: {
+            taskId: updateTask?.id,
+            updatedData: { ...values, status: "pending" },
+          },
         })
       );
     } else {
       //   setTaskData((prev) => [{ ...values, status: "pending" }, ...prev]);
-      dispatch(handleTasksData({ ...values, status: "pending" }));
+
+      console.log('khgyftdrsrdf   else')
+      dispatch(
+        handleTasksData({
+          domian: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
+          data: { ...values, status: "pending" },
+        })
+      );
     }
     setOpenModal(false);
     form.resetFields();
@@ -167,7 +137,12 @@ const Dashboard = () => {
   };
 
   const handleDeleteTask = (id) => {
-    dispatch(deleteTaskById(id));
+    dispatch(
+      deleteTaskById({
+        domain: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
+        data: id,
+      })
+    );
   };
 
   const handleSearchChange = (event) => {
@@ -192,11 +167,22 @@ const Dashboard = () => {
       key: "1",
       //   icon: <UserOutlined />,
     },
+    {
+      label: "Edit user",
+      key: "2",
+      //   icon: <UserOutlined />,
+    },
   ];
 
   const handleMenuClick = (e) => {
     console.log("click", e);
-    navigate("/");
+    if (e.key == 1) {
+      navigate("/");
+    }
+    if (e.key == 2) {
+      dispatch(isEditUserDetail(true));
+      navigate("/signup");
+    }
   };
 
   const menuProps = {
@@ -204,15 +190,17 @@ const Dashboard = () => {
     onClick: handleMenuClick,
   };
 
-  console.log("taskDtatatatattatataa", taskDatas);
+  console.log("taskDtatatatattatataa", storedUser?.name);
 
   return (
     <div className="w-full h-full flex items-center flex-col gap-y-8">
       <div className="w-full bg-gray-500 flex justify-end px-10 py-3">
         <Dropdown menu={menuProps} trigger={["click"]}>
           <div className="flex items-center gap-2 cursor-pointer">
-            <Avatar size={"large"}>AK</Avatar>
-            <h4 className="text-white">Avnish kumar</h4>
+            <Avatar size={"large"}>
+              {storedUser?.name?.charAt(0)?.toUpperCase()}
+            </Avatar>
+            <h4 className="text-white">{storedUser?.name}</h4>
           </div>
         </Dropdown>
       </div>
