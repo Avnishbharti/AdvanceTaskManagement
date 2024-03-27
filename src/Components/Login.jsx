@@ -1,12 +1,63 @@
-import { Button, Form, Input } from "antd";
-import React from "react";
-import { Link } from "react-router-dom";
+import { Button, Form, Input, message } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { getuserData } from "./slice";
 
 const Login = () => {
+  const details = useSelector((state) => state.slice.userData);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+
+  const [isAutenticated, setIsAutenticated] = useState(false);
+
+  useEffect(() => {
+    dispatch(getuserData());
+  }, []);
+
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const success = () => {
+    messageApi.open({
+      type: "success",
+      content: "Logged in successfully",
+      duration: 10,
+    });
+  };
+
+  const handleFinish = useCallback(
+    (values) => {
+      let filterData = details?.filter(
+        (item) =>
+          item?.email == values?.email && item?.password == values?.password
+      );
+
+      if (filterData?.length > 0) {
+        setIsAutenticated(false);
+        success();
+        setTimeout(() => {
+            navigate("/dashboard");
+        }, 2000);
+      } else {
+        setIsAutenticated(true);
+      }
+    },
+    [details]
+  );
+
   return (
     <div className="flex flex-col justify-center items-center gap-y-15 w-2/5 py-20 bg-white rounded-2xl shadow-formCard ">
       <h1 className="text-5xl">Login</h1>
-      <Form layout="vertical" size="large" style={{ width: "70%" }}>
+      {isAutenticated && (
+        <p className="text-red-500">Email and password is wrong</p>
+      )}
+      <Form
+        layout="vertical"
+        size="large"
+        style={{ width: "70%" }}
+        onFinish={handleFinish}
+      >
         <Form.Item
           label="Email"
           name="email"
@@ -40,6 +91,7 @@ const Login = () => {
           signup
         </Link>{" "}
       </div>
+      {contextHolder}
     </div>
   );
 };

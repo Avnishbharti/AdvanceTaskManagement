@@ -3,6 +3,7 @@ import {
   Avatar,
   Button,
   Checkbox,
+  Dropdown,
   Form,
   Input,
   Modal,
@@ -11,73 +12,91 @@ import {
   Switch,
 } from "antd";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteTaskById,
+  getTaskData,
+  handleTasksData,
+  updateTaskById,
+} from "./slice";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const tasks = [
     {
       title: "Drink coffee",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "pending",
     },
     {
       title: "To do assignment",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "completed",
     },
     {
       title: "Go to trip",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "pending",
     },
     {
       title: "Going to College",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "pending",
     },
     {
       title: "Going to bath ",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "completed",
     },
     {
       title: "Going to make food ",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "pending",
     },
     {
       title: "To do Garage work",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "completed",
     },
     {
       title: "Drink coffee HR ",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "pending",
     },
     {
       title: "Drink coffee with Dean",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "pending",
     },
     {
       title: "Drink coffee CEO",
-      discription: "i have to drink cofffe at evening time ",
+      description: "i have to drink cofffe at evening time ",
       status: "completed",
     },
   ];
-
+  const taskDatas = useSelector((state) => state.slice.taskData);
   const containerRef = useRef();
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
   const [taskData, setTaskData] = useState([]);
   const [data, setData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [updateTask, setUpdateTask] = useState(false);
+  const [paginationCount, setPaginationCount] = useState(0);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [searchText, setSearchText] = useState("");
 
   const [form] = Form.useForm();
 
   useEffect(() => {
-    setTaskData(tasks);
+    dispatch(getTaskData());
   }, []);
+
+  useEffect(() => {
+    setTaskData(taskDatas);
+  }, [taskDatas]);
 
   useEffect(() => {
     let temp = taskData?.slice(0, 6);
@@ -90,9 +109,6 @@ const Dashboard = () => {
     const draggedItemContent = tempData.splice(dragItem.current, 1)[0];
     tempData.splice(dragOverItem.current, 0, draggedItemContent);
     console.log("draggedDtaata", dragItem.current, dragOverItem.current);
-    // if (currentVideoData?.index === dragItem.current) {
-    //   setCurrentVideoData((prev) => ({ ...prev, index: dragOverItem.current }));
-    // }
     dragItem.current = null;
     dragOverItem.current = null;
     setData(tempData);
@@ -101,6 +117,7 @@ const Dashboard = () => {
   const handlePagination = useCallback(
     (e) => {
       console.log("handlePagination", e * 6 - 6, e * 6);
+      setPaginationCount(e);
       let temp = taskData?.slice(e * 6 - 6, e * 6);
 
       console.log("handlePagination dataa", temp);
@@ -109,38 +126,104 @@ const Dashboard = () => {
     [taskData]
   );
 
-  const handleStatusChange = (e, idx) => {
+  const handleStatusChange = (e, updateTask) => {
     console.log("ndbhvfidhbcjknlmx", e);
-
-    setData((prev) => {
-      let temparr = [...prev];
-      let tempobj = { ...temparr[idx] };
-      let res = {
-        ...tempobj,
-        status: e.target.checked == false ? "pending" : "completed",
-      };
-      temparr[idx] = res;
-      return temparr;
-    });
+    dispatch(
+      updateTaskById({
+        taskId: updateTask?.id,
+        updatedData: {
+          ...updateTask,
+          status: e.target.checked == false ? "pending" : "completed",
+        },
+      })
+    );
   };
 
   const handleAddTask = (values) => {
-    setTaskData((prev) => [{ ...values, status: "pending" }, ...prev]);
+    if (updateTask) {
+      dispatch(
+        updateTaskById({
+          taskId: updateTask?.id,
+          updatedData: { ...values, status: "pending" },
+        })
+      );
+    } else {
+      //   setTaskData((prev) => [{ ...values, status: "pending" }, ...prev]);
+      dispatch(handleTasksData({ ...values, status: "pending" }));
+    }
     setOpenModal(false);
     form.resetFields();
+    setUpdateTask(null);
   };
+
+  const handleUpdateTask = (data) => {
+    setUpdateTask(data);
+    setOpenModal(true);
+    console.log("sndjhfghsjkndnkjfhjbn", data);
+    form.setFieldsValue({
+      title: data?.title,
+      description: data?.description,
+    });
+  };
+
+  const handleDeleteTask = (id) => {
+    dispatch(deleteTaskById(id));
+  };
+
+  const handleSearchChange = (event) => {
+    const searchTerm = event.target.value.toLowerCase(); // Ensure case-insensitive search
+    setSearchText(searchTerm);
+    console.log("sjhgdfidhcvgdshbknj", searchTerm);
+    if (searchTerm != "") {
+      const filtered = taskData.filter((item) =>
+        item.title.toLowerCase().includes(searchTerm)
+      );
+      setData(filtered);
+    } else {
+      let temp = taskData?.slice(paginationCount * 6 - 6, paginationCount * 6);
+      console.log("handlePagination dataa", temp);
+      setData(temp);
+    }
+  };
+
+  const items = [
+    {
+      label: "Logout",
+      key: "1",
+      //   icon: <UserOutlined />,
+    },
+  ];
+
+  const handleMenuClick = (e) => {
+    console.log("click", e);
+    navigate("/");
+  };
+
+  const menuProps = {
+    items,
+    onClick: handleMenuClick,
+  };
+
+  console.log("taskDtatatatattatataa", taskDatas);
 
   return (
     <div className="w-full h-full flex items-center flex-col gap-y-8">
       <div className="w-full bg-gray-500 flex justify-end px-10 py-3">
-        <div className="flex items-center gap-2">
-          <Avatar size={"large"}>AK</Avatar>
-          <h4 className="text-white">Avnish kumar</h4>
-        </div>
+        <Dropdown menu={menuProps} trigger={["click"]}>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <Avatar size={"large"}>AK</Avatar>
+            <h4 className="text-white">Avnish kumar</h4>
+          </div>
+        </Dropdown>
       </div>
       <div className="w-full flex items-center flex-col gap-y-8">
         <div className="w-3/4 flex justify-between items-center gap-3">
-          <Input size="large" placeholder="search task" />{" "}
+          <Input
+            size="large"
+            value={searchText}
+            placeholder="search task"
+            onChange={handleSearchChange}
+          />{" "}
           <Button
             onClick={() => {
               setOpenModal(true);
@@ -182,16 +265,28 @@ const Dashboard = () => {
                   <div>
                     <h2 className="text-black-400 text-lg">{item?.title}</h2>
                     <h3 className="text-black-200 text-xs">
-                      {item?.discription}
+                      {item?.description}
                     </h3>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                  <Icon
+                    icon="fluent:edit-24-regular"
+                    onClick={() => {
+                      handleUpdateTask(item);
+                    }}
+                  />
+                  <Icon
+                    icon="fluent:delete-24-regular"
+                    onClick={() => {
+                      handleDeleteTask(item?.id);
+                    }}
+                  />
                   <p>{item?.status}</p>
                   <Checkbox
                     checked={item?.status === "completed" ? true : false}
                     onChange={(e) => {
-                      handleStatusChange(e, idx);
+                      handleStatusChange(e, item);
                     }}
                   />
 
@@ -204,14 +299,17 @@ const Dashboard = () => {
             );
           })}
         </div>
-        <div>
-          <Pagination
-            defaultCurrent={1}
-            defaultPageSize={6}
-            onChange={handlePagination}
-            total={taskData.length}
-          />
-        </div>
+        {data?.length > 5 && (
+          <div>
+            <Pagination
+              defaultCurrent={1}
+              defaultPageSize={6}
+              onChange={handlePagination}
+              total={taskData.length}
+              disabled={data?.length < 6 ? true : false}
+            />
+          </div>
+        )}
       </div>
 
       <Modal
