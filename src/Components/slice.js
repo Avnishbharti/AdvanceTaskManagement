@@ -24,6 +24,10 @@ export const getuserData = createAsyncThunk("getUserDetail", async () => {
 });
 
 export const handleTasksData = createAsyncThunk("taskData", async (data) => {
+
+  console.log('jshcgdvftuvygsihxbnjkmaddddd',data)
+
+
   await axios.post(
     `https://advancetaskmanagement-default-rtdb.firebaseio.com/${data?.domain}tasks.json`,
     data?.data
@@ -35,6 +39,8 @@ export const handleTasksData = createAsyncThunk("taskData", async (data) => {
 });
 
 export const getTaskData = createAsyncThunk("getTaskData", async (domain) => {
+
+  console.log('jshcgdvftuvygsihxbnjkm all',domain)
   const response = await axios.get(
     `https://advancetaskmanagement-default-rtdb.firebaseio.com/${domain}tasks.json`
   );

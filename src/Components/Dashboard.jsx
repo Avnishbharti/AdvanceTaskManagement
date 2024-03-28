@@ -44,7 +44,7 @@ const Dashboard = () => {
   useEffect(() => {
     let domain = storedUser?.name?.replace(/\s/g, "").toLowerCase();
     dispatch(getTaskData(domain));
-  }, []);
+  }, [storedUser]);
 
   useEffect(() => {
     setTaskData(taskDatas);
@@ -96,11 +96,7 @@ const Dashboard = () => {
 
   const handleAddTask = (values) => {
     if (updateTask) {
-
-
-        console.log('khgyftdrsrdf   if')
-
-
+      console.log("khgyftdrsrdf   if");
       dispatch(
         updateTaskById({
           domain: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
@@ -113,10 +109,10 @@ const Dashboard = () => {
     } else {
       //   setTaskData((prev) => [{ ...values, status: "pending" }, ...prev]);
 
-      console.log('khgyftdrsrdf   else')
+      console.log("jshcgdvftuvygsihxbnjkm   else");
       dispatch(
         handleTasksData({
-          domian: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
+          domain: storedUser?.name?.replace(/\s/g, "").toLowerCase(),
           data: { ...values, status: "pending" },
         })
       );
