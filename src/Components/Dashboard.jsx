@@ -44,7 +44,7 @@ const Dashboard = () => {
   useEffect(() => {
     let domain = storedUser?.name?.replace(/\s/g, "").toLowerCase();
     dispatch(getTaskData(domain));
-  }, [storedUser]);
+  }, []);
 
   useEffect(() => {
     setTaskData(taskDatas);
