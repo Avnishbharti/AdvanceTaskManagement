@@ -1,8 +1,10 @@
-# React + Vite
+Following Steops to run the application 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+=>  Go through the github link https://github.com/Avnishbharti/AdvanceTaskManagement  and clone the    application 
+=>  After cloning it open the terminal and move to the related directory and do "npm install" to get all the related packages and dependancies
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+=> After doing all these thing give the command "npm run dev" to start the application 
+
+
+=> Here the deployement link of that project is https://advance-task-management.vercel.app/ 
