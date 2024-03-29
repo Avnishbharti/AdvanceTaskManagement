@@ -142,7 +142,7 @@ const Dashboard = () => {
   };
 
   const handleSearchChange = (event) => {
-    const searchTerm = event.target.value.toLowerCase(); // Ensure case-insensitive search
+    const searchTerm = event.target.value.toLowerCase();
     setSearchText(searchTerm);
     console.log("sjhgdfidhcvgdshbknj", searchTerm);
     if (searchTerm != "") {
@@ -161,12 +161,10 @@ const Dashboard = () => {
     {
       label: "Logout",
       key: "1",
-      //   icon: <UserOutlined />,
     },
     {
       label: "Edit user",
       key: "2",
-      //   icon: <UserOutlined />,
     },
   ];
 
@@ -229,9 +227,6 @@ const Dashboard = () => {
                   background:
                     item?.status === "completed" ? "#99ff99" : "#d9d9d9",
                 }}
-                // onClick={() => {
-                //   setCurrentVideoData({ index: idx, info: item });
-                // }}
                 draggable={true}
                 onDragStart={(e) => {
                   console.log("dragagfayfayta start", e);
@@ -245,7 +240,6 @@ const Dashboard = () => {
                 onDragOver={(e) => e.preventDefault()}
               >
                 <div className="flex items-center gap-3">
-                  {/* <h2 className="text-black-400 text-lg">{idx + 1}</h2> */}
                   <div>
                     <h2 className="text-black-400 text-lg">{item?.title}</h2>
                     <h3 className="text-black-200 text-xs">
